@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>United Sons Moving — Job Pipeline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --black:#0a0a0a;
+    --white:#ffffff;
+    --red:#ef132c;
+    --paper:#f6f5f3;
+    --graphite:#4a4a4a;
+    --line:#e3e1dc;
+    --card:#ffffff;
+    --amber:#c98a1c;
+    --green:#1c7a4d;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--black);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:76px;
+  }
+  h1,h2,h3,.label-font{font-family:'Archivo',sans-serif;}
+
+  /* Header */
+  header{
+    background:var(--black);
+    color:var(--white);
+    padding:18px 18px 16px;
+    position:sticky; top:0; z-index:20;
+  }
+  header .brand-logo{
+    display:flex; align-items:center;
+  }
+  header .brand-logo img{
+    height:28px; width:auto; display:block;
+  }
+  header .view-title{
+    margin-top:6px; font-size:22px; font-weight:700; font-family:'Archivo',sans-serif;
+  }
+
+  main{padding:16px; max-width:640px; margin:0 auto;}
+
+  /* Tab bar */
+  nav.tabbar{
+    position:fixed; bottom:0; left:0; right:0;
+    background:var(--black);
+    display:flex;
+    border-top:1px solid #262626;
+    z-index:30;
+  }
+  nav.tabbar button{
+    flex:1; background:none; border:none; color:#8a8a8a;
+    font-family:'Archivo',sans-serif; font-weight:600; font-size:12.5px;
+    padding:12px 4px 14px; display:flex; flex-direction:column; align-items:center; gap:4px;
+  }
+  nav.tabbar button.active{color:var(--white);}
+  nav.tabbar button .dot{
+    width:5px; height:5px; border-radius:50%; background:transparent;
+  }
+  nav.tabbar button.active .dot{background:var(--red);}
+
+  /* Buttons */
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center;
+    padding:13px 18px; border-radius:3px; border:none;
+    font-family:'Archivo',sans-serif; font-weight:600; font-size:14.5px;
+    cursor:pointer;
+  }
+  .btn-primary{background:var(--red); color:var(--white);}
+  .btn-primary:active{background:#c80f24;}
+  .btn-dark{background:var(--black); color:var(--white);}
+  .btn-outline{background:transparent; color:var(--black); border:1.5px solid var(--black);}
+  .btn-block{width:100%;}
+  .btn:disabled{opacity:0.4;}
+
+  .fab{
+    position:fixed; right:18px; bottom:90px; z-index:25;
+    width:56px; height:56px; border-radius:4px;
+    background:var(--red); color:var(--white); border:none;
+    font-size:28px; line-height:1; font-weight:400;
+    box-shadow:0 6px 16px rgba(0,0,0,0.25);
+  }
+
+  /* Cards */
+  .card{
+    background:var(--card); border:1px solid var(--line);
+    border-radius:4px; padding:14px 14px 12px; margin-bottom:10px;
+    position:relative;
+  }
+  .card .top-row{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+  .card .name{font-size:16px; font-weight:700; font-family:'Archivo',sans-serif;}
+  .card .route{font-size:13px; color:var(--graphite); margin-top:3px; line-height:1.4;}
+  .card .meta-row{
+    display:flex; gap:12px; margin-top:9px; font-size:12px; color:var(--graphite);
+    flex-wrap:wrap;
+  }
+  .card .meta-row span{display:flex; align-items:center; gap:4px;}
+
+  /* Status stamp */
+  .stamp{
+    font-family:'Archivo',sans-serif; font-weight:700; font-size:10.5px;
+    padding:4px 8px; border-radius:2px; white-space:nowrap;
+    border:1.5px solid currentColor; letter-spacing:0.3px;
+  }
+  .stamp.lead{color:var(--graphite);}
+  .stamp.survey{color:var(--amber);}
+  .stamp.quoted{color:#1c5fa8;}
+  .stamp.confirmed{color:var(--green);}
+  .stamp.ops{color:var(--red);}
+
+  /* Empty state */
+  .empty{
+    text-align:center; padding:60px 20px 40px; color:var(--graphite);
+  }
+  .empty .big{font-family:'Archivo',sans-serif; font-weight:700; font-size:17px; color:var(--black); margin-bottom:6px;}
+  .empty p{font-size:13.5px; line-height:1.5; margin:0;}
+
+  /* Section labels */
+  .section-label{
+    font-family:'Archivo',sans-serif; font-weight:700; font-size:13px;
+    color:var(--graphite); margin:18px 0 8px; padding-bottom:6px;
+    border-bottom:1.5px solid var(--black);
+  }
+  .section-label:first-child{margin-top:0;}
+
+  /* Modal / sheet */
+  .overlay{
+    position:fixed; inset:0; background:rgba(10,10,10,0.55);
+    z-index:50; display:flex; align-items:flex-end;
+  }
+  .sheet{
+    background:var(--white); width:100%; max-height:92vh; overflow-y:auto;
+    border-radius:14px 14px 0 0; padding:18px 18px 28px;
+    animation:slideup 0.22s ease-out;
+  }
+  @keyframes slideup{from{transform:translateY(24px); opacity:0.4;} to{transform:translateY(0); opacity:1;}}
+  .sheet-handle{width:36px; height:4px; background:var(--line); border-radius:2px; margin:0 auto 14px;}
+  .sheet h2{font-size:19px; margin:0 0 4px;}
+  .sheet .sheet-sub{font-size:12.5px; color:var(--graphite); margin-bottom:16px;}
+
+  .field{margin-bottom:14px;}
+  .field label{
+    display:block; font-size:12px; font-weight:600; color:var(--graphite);
+    margin-bottom:5px; font-family:'Archivo',sans-serif;
+  }
+  .field input, .field textarea, .field select{
+    width:100%; padding:11px 12px; border:1.5px solid var(--line);
+    border-radius:4px; font-size:15px; font-family:'Inter',sans-serif;
+    background:var(--white); color:var(--black);
+  }
+  .field input:focus, .field textarea:focus, .field select:focus{
+    outline:none; border-color:var(--black);
+  }
+  .field textarea{resize:vertical; min-height:60px;}
+  .field-row{display:flex; gap:10px;}
+  .field-row .field{flex:1;}
+
+  .radio-group{display:flex; gap:8px;}
+  .radio-opt{
+    flex:1; border:1.5px solid var(--line); border-radius:4px;
+    padding:10px; text-align:center; font-size:13.5px; font-weight:600;
+    font-family:'Archivo',sans-serif; color:var(--graphite); cursor:pointer;
+  }
+  .radio-opt.selected{border-color:var(--red); color:var(--red); background:#fdf1f2;}
+
+  .divider{height:1px; background:var(--line); margin:16px 0;}
+
+  .close-x{
+    position:absolute; top:14px; right:14px; background:none; border:none;
+    font-size:20px; color:var(--graphite); padding:4px;
+  }
+
+  .detail-block{margin-bottom:16px;}
+  .detail-block .dl-label{font-size:11.5px; font-weight:600; color:var(--graphite); font-family:'Archivo',sans-serif; margin-bottom:2px;}
+  .detail-block .dl-value{font-size:14.5px; line-height:1.5;}
+
+  .quote-summary{
+    background:var(--paper); border-radius:6px; padding:12px 14px; margin-top:6px;
+    display:flex; justify-content:space-between; gap:10px;
+  }
+  .quote-summary .qs-item{text-align:left;}
+  .quote-summary .qs-num{font-family:'Archivo',sans-serif; font-weight:800; font-size:19px;}
+  .quote-summary .qs-label{font-size:11px; color:var(--graphite); margin-top:1px;}
+
+  .status-pipeline{display:flex; gap:4px; margin-bottom:16px;}
+  .status-pipeline .seg{flex:1; height:4px; border-radius:2px; background:var(--line);}
+  .status-pipeline .seg.done{background:var(--red);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand-logo">
+    <img src="data:image/png;base64,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" alt="United Sons Moving Services">
+  </div>
+  <div class="view-title" id="viewTitle">Customer Files</div>
+</header>
+
+<main id="mainContent"></main>
+
+<button class="fab" id="fabBtn" onclick="openNewLead()">+</button>
+
+<nav class="tabbar">
+  <button class="tab-btn active" data-tab="files" onclick="switchTab('files')">
+    <span class="dot"></span>FILES
+  </button>
+  <button class="tab-btn" data-tab="schedule" onclick="switchTab('schedule')">
+    <span class="dot"></span>SCHEDULE
+  </button>
+  <button class="tab-btn" data-tab="ops" onclick="switchTab('ops')">
+    <span class="dot"></span>OPERATIONS
+  </button>
+</nav>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+import {
+  getFirestore, collection, doc, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy
+} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+
+/* ---------- Firebase setup ---------- */
+const firebaseConfig = {
+  apiKey: "AIzaSyCrMaQRXaRmbXLt_BZuQ0KTdaZ0gdNaWb4",
+  authDomain: "united-sons.firebaseapp.com",
+  projectId: "united-sons",
+  storageBucket: "united-sons.firebasestorage.app",
+  messagingSenderId: "214414379763",
+  appId: "1:214414379763:web:84273c84ca889399de4586",
+  measurementId: "G-JJCHZHNB7F"
+};
+const fbApp = initializeApp(firebaseConfig);
+const db = getFirestore(fbApp);
+const jobsCol = collection(db, "jobs");
+
+/* IMPORTANT: once you deploy customer-upload.html, replace this with its real address,
+   e.g. https://yourusername.github.io/united-sons-moving/customer-upload.html */
+const UPLOAD_BASE_URL = "https://thewarehouseeg.github.io/United-Sons/customer-upload.html";
+const PACKINGLIST_BASE_URL = "https://thewarehouseeg.github.io/United-Sons/supervisor-upload.html";
+
+function uid(){ return 'j' + Date.now() + Math.floor(Math.random()*1000); }
+
+async function saveJobFields(id, fields){
+  await setDoc(doc(db, "jobs", id), fields, { merge: true });
+}
+
+let jobs = [];
+let currentTab = 'files';
+
+/* Live sync: any change here, on any device, updates everyone automatically */
+onSnapshot(jobsCol, (snapshot)=>{
+  jobs = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+  render();
+});
+
+/* Status order: lead -> survey_set -> quoted -> confirmed -> ops */
+const STATUS_LABEL = {
+  lead: 'NEW LEAD',
+  survey_set: 'SURVEY SET',
+  quoted: 'QUOTED',
+  confirmed: 'CONFIRMED',
+  ops: 'WITH OPERATIONS'
+};
+const STATUS_CLASS = {
+  lead:'lead', survey_set:'survey', quoted:'quoted', confirmed:'confirmed', ops:'ops'
+};
+
+/* ---------- Tab switching ---------- */
+function switchTab(tab){
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  document.getElementById('viewTitle').textContent =
+    tab==='files' ? 'Customer Files' : tab==='schedule' ? 'Survey Schedule' : 'Operations Queue';
+  document.getElementById('fabBtn').style.display = tab==='files' ? 'flex' : 'none';
+  render();
+}
+
+/* ---------- Rendering ---------- */
+function render(){
+  const main = document.getElementById('mainContent');
+  if(!main) return;
+  if(currentTab==='files') return renderFiles(main);
+  if(currentTab==='schedule') return renderSchedule(main);
+  if(currentTab==='ops') return renderOps(main);
+}
+
+function renderFiles(main){
+  if(jobs.length===0){
+    main.innerHTML = emptyState('No customer files yet', 'Tap the red + button to open a file as soon as someone calls in.');
+    return;
+  }
+  const sorted = [...jobs].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  main.innerHTML = sorted.map(j=>fileCard(j)).join('');
+}
+
+function renderSchedule(main){
+  const scheduled = jobs.filter(j=>j.surveyDate).sort((a,b)=> {
+    const dateCompare = new Date(a.surveyDate) - new Date(b.surveyDate);
+    if(dateCompare !== 0) return dateCompare;
+    return (a.surveyTime||'').localeCompare(b.surveyTime||'');
+  });
+  if(scheduled.length===0){
+    main.innerHTML = emptyState('No surveys on the schedule', 'When you set a pre-move survey date on a file, it will show up here for operations to see.');
+    return;
+  }
+
+  // Group by calendar day (YYYY-MM-DD)
+  const groups = [];
+  let currentDay = null;
+  for(const j of scheduled){
+    if(j.surveyDate !== currentDay){
+      currentDay = j.surveyDate;
+      groups.push({ day: currentDay, items: [] });
+    }
+    groups[groups.length-1].items.push(j);
+  }
+
+  const todayStr = new Date().toISOString().slice(0,10);
+
+  main.innerHTML = groups.map(g=>{
+    const d = new Date(g.day + 'T00:00:00');
+    const isToday = g.day === todayStr;
+    const dayLabel = d.toLocaleDateString(undefined,{weekday:'long', month:'long', day:'numeric'});
+    const cards = g.items.map(j=>{
+      const timeStr = j.surveyTime || '';
+      return `
+      <div class="card" onclick="openDetail('${j.id}')">
+        <div class="top-row">
+          <div>
+            <div class="name">${esc(j.name)}</div>
+            <div class="route">${esc(j.pickup)} → ${esc(j.destination)}</div>
+          </div>
+          <span class="stamp ${STATUS_CLASS[j.status]}">${STATUS_LABEL[j.status]}</span>
+        </div>
+        <div class="meta-row">
+          ${timeStr ? `<span>🕐 ${timeStr}</span>` : ''}
+          <span>📞 ${esc(j.phone||'—')}</span>
+        </div>
+      </div>`;
+    }).join('');
+    return `
+      <div class="section-label" style="${isToday ? 'color:var(--red); border-bottom-color:var(--red);' : ''}">
+        ${isToday ? 'TODAY · ' : ''}${dayLabel.toUpperCase()}
+      </div>
+      ${cards}
+    `;
+  }).join('');
+}
+
+function renderOps(main){
+  const opsJobs = jobs.filter(j=>j.status==='ops').sort((a,b)=>(b.sentToOpsAt||0)-(a.sentToOpsAt||0));
+  if(opsJobs.length===0){
+    main.innerHTML = emptyState('No confirmed jobs yet', 'Once a quote is agreed and sent, the job will appear here for operations to assign and run.');
+    return;
+  }
+  main.innerHTML = opsJobs.map(j=>`
+    <div class="card" onclick="openDetail('${j.id}')">
+      <div class="top-row">
+        <div>
+          <div class="name">${esc(j.name)}</div>
+          <div class="route">${esc(j.pickup)} → ${esc(j.destination)}</div>
+        </div>
+        <span class="stamp ops">OPERATIONS</span>
+      </div>
+      <div class="quote-summary">
+        <div class="qs-item">
+          <div class="qs-num">${j.cbm ?? '—'}</div>
+          <div class="qs-label">CUBIC METERS</div>
+        </div>
+        <div class="qs-item">
+          <div class="qs-num">${j.price ? formatMoney(j.price) : '—'}</div>
+          <div class="qs-label">AGREED PRICE</div>
+        </div>
+        <div class="qs-item">
+          <div class="qs-num">${j.surveyDate ? new Date(j.surveyDate).toLocaleDateString(undefined,{month:'short',day:'numeric'}) : '—'}</div>
+          <div class="qs-label">MOVE REF DATE</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function fileCard(j){
+  return `
+    <div class="card" onclick="openDetail('${j.id}')">
+      <div class="top-row">
+        <div>
+          <div class="name">${esc(j.name)}</div>
+          <div class="route">${esc(j.pickup)} → ${esc(j.destination)}</div>
+        </div>
+        <span class="stamp ${STATUS_CLASS[j.status]}">${STATUS_LABEL[j.status]}</span>
+      </div>
+      <div class="meta-row">
+        <span>📞 ${esc(j.phone||'—')}</span>
+        ${j.surveyDate ? `<span>📅 ${new Date(j.surveyDate).toLocaleDateString(undefined,{month:'short',day:'numeric'})}</span>` : ''}
+        ${j.cbm ? `<span>📦 ${j.cbm} m³</span>` : ''}
+        ${j.price ? `<span>💰 ${formatMoney(j.price)}</span>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function emptyState(big, p){
+  return `<div class="empty"><div class="big">${big}</div><p>${p}</p></div>`;
+}
+
+function esc(s){
+  return (s||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function formatMoney(n){
+  return Number(n).toLocaleString() + ' EGP';
+}
+
+/* Normalize Egyptian numbers for WhatsApp links (wa.me needs country code, no leading 0) */
+function normalizeEgyptPhone(phone){
+  let p = (phone||'').replace(/[^\d]/g,'');
+  if(p.startsWith('0')) p = '20' + p.slice(1);
+  else if(!p.startsWith('20')) p = '20' + p;
+  return p;
+}
+
+/* ---------- New Lead sheet ---------- */
+function openNewLead(){
+  const html = `
+    <div class="overlay" id="overlay" onclick="closeOverlayOutside(event)">
+      <div class="sheet">
+        <div class="sheet-handle"></div>
+        <button class="close-x" onclick="closeOverlay()">✕</button>
+        <h2>New Customer File</h2>
+        <div class="sheet-sub">Open this the moment the call comes in.</div>
+
+        <div class="field">
+          <label>Customer name</label>
+          <input type="text" id="f_name" placeholder="e.g. Ahmed Fathy">
+        </div>
+        <div class="field">
+          <label>Phone number</label>
+          <input type="tel" id="f_phone" placeholder="01xxxxxxxxx">
+        </div>
+        <div class="field">
+          <label>Pickup address</label>
+          <input type="text" id="f_pickup" placeholder="Moving from…">
+        </div>
+        <div class="field">
+          <label>Destination address</label>
+          <input type="text" id="f_dest" placeholder="Moving to…">
+        </div>
+
+        <div class="field">
+          <label>How will we price this job?</label>
+          <div class="radio-group">
+            <div class="radio-opt" id="opt_photos" onclick="selectPricingMode('photos')">Customer sends photos</div>
+            <div class="radio-opt" id="opt_survey" onclick="selectPricingMode('survey')">Pre-move survey visit</div>
+          </div>
+        </div>
+
+        <div id="surveyFields" style="display:none">
+          <div class="field-row">
+            <div class="field">
+              <label>Survey date</label>
+              <input type="date" id="f_surveyDate">
+            </div>
+            <div class="field">
+              <label>Survey time</label>
+              <input type="time" id="f_surveyTime">
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Notes (optional)</label>
+          <textarea id="f_notes" placeholder="Anything else worth noting from the call"></textarea>
+        </div>
+
+        <button class="btn btn-primary btn-block" onclick="saveNewLead()">Save file</button>
+      </div>
+    </div>
+  `;
+  openOverlay(html);
+}
+
+/* ---------- Overlay / history handling so the device back gesture closes sheets ---------- */
+let overlayOpen = false;
+function openOverlay(html){
+  const old = document.getElementById('overlay');
+  if(old) old.remove();
+  document.body.insertAdjacentHTML('beforeend', html);
+  if(!overlayOpen){
+    overlayOpen = true;
+    history.pushState({ overlay: true }, '');
+  }
+}
+function removeOverlayDom(){
+  const o = document.getElementById('overlay');
+  if(o) o.remove();
+  if(currentPhotosUnsub){ currentPhotosUnsub(); currentPhotosUnsub = null; }
+  if(currentPackingListUnsub){ currentPackingListUnsub(); currentPackingListUnsub = null; }
+}
+window.addEventListener('popstate', ()=>{
+  overlayOpen = false;
+  removeOverlayDom();
+});
+
+let pricingMode = null;
+function selectPricingMode(mode){
+  pricingMode = mode;
+  document.getElementById('opt_photos').classList.toggle('selected', mode==='photos');
+  document.getElementById('opt_survey').classList.toggle('selected', mode==='survey');
+  document.getElementById('surveyFields').style.display = mode==='survey' ? 'block' : 'none';
+}
+
+async function saveNewLead(){
+  const name = document.getElementById('f_name').value.trim();
+  const phone = document.getElementById('f_phone').value.trim();
+  const pickup = document.getElementById('f_pickup').value.trim();
+  const dest = document.getElementById('f_dest').value.trim();
+  const notes = document.getElementById('f_notes').value.trim();
+
+  if(!name || !pickup || !dest){
+    alert('Please fill in the customer name, pickup address, and destination.');
+    return;
+  }
+
+  const job = {
+    name, phone, pickup, destination: dest,
+    pricingMode: pricingMode || 'photos',
+    notes,
+    status: pricingMode==='survey' ? 'survey_set' : 'lead',
+    createdAt: Date.now(),
+    cbm: null, price: null, customerResponse: '',
+    surveyDate: null, surveyTime: null,
+    sentToOpsAt: null
+  };
+
+  if(pricingMode==='survey'){
+    const d = document.getElementById('f_surveyDate').value;
+    const t = document.getElementById('f_surveyTime').value;
+    if(d){ job.surveyDate = d; job.surveyTime = t; }
+  }
+
+  const id = uid();
+  await saveJobFields(id, job);
+  pricingMode = null;
+  closeOverlay();
+}
+
+/* ---------- Detail sheet ---------- */
+function openDetail(id){
+  const j = jobs.find(x=>x.id===id);
+  if(!j) return;
+
+  const statusSteps = ['lead','survey_set','quoted','confirmed','ops'];
+  const currentIdx = statusSteps.indexOf(j.status);
+
+  const html = `
+    <div class="overlay" id="overlay" onclick="closeOverlayOutside(event)">
+      <div class="sheet">
+        <div class="sheet-handle"></div>
+        <button class="close-x" onclick="closeOverlay()">✕</button>
+        <button class="close-x" style="right:44px; color:var(--red);" onclick="deleteJob('${j.id}')" title="Delete file">🗑</button>
+        <h2>${esc(j.name)}</h2>
+        <div class="sheet-sub">${esc(j.pickup)} → ${esc(j.destination)}</div>
+
+        <div class="status-pipeline">
+          ${statusSteps.map((s,i)=>`<div class="seg ${i<=currentIdx?'done':''}"></div>`).join('')}
+        </div>
+        <div class="stamp ${STATUS_CLASS[j.status]}" style="margin-bottom:16px; display:inline-block;">${STATUS_LABEL[j.status]}</div>
+
+        <div class="detail-block">
+          <div class="dl-label">PHONE</div>
+          <div class="dl-value">${esc(j.phone||'—')}</div>
+        </div>
+
+        ${j.notes ? `<div class="detail-block"><div class="dl-label">CALL NOTES</div><div class="dl-value">${esc(j.notes)}</div></div>` : ''}
+
+        <div class="divider"></div>
+
+        <div class="section-label">Survey / Pricing method</div>
+        <div class="field">
+          <label>Method</label>
+          <div class="radio-group">
+            <div class="radio-opt ${j.pricingMode==='photos'?'selected':''}" onclick="setPricingModeDetail('${j.id}','photos')">Photos</div>
+            <div class="radio-opt ${j.pricingMode==='survey'?'selected':''}" onclick="setPricingModeDetail('${j.id}','survey')">Survey visit</div>
+          </div>
+        </div>
+
+        ${j.pricingMode==='photos' ? `
+          <button class="btn btn-dark btn-block" onclick="sendPhotoLink('${j.id}')">Send photo upload link via WhatsApp</button>
+          ${(!j.phone) ? '<div class="sheet-sub" style="margin-top:6px;">Add a phone number above so the link can be sent.</div>' : ''}
+          <div id="photosBox" style="margin-top:12px;"><div class="sheet-sub">Loading photos…</div></div>
+        ` : `
+          <div class="field-row">
+            <div class="field">
+              <label>Survey date</label>
+              <input type="date" id="d_surveyDate" value="${j.surveyDate||''}">
+            </div>
+            <div class="field">
+              <label>Survey time</label>
+              <input type="time" id="d_surveyTime" value="${j.surveyTime||''}">
+            </div>
+          </div>
+          <button class="btn btn-outline btn-block" onclick="saveSurveySchedule('${j.id}')">Save to schedule</button>
+        `}
+
+        <div class="divider"></div>
+
+        <div class="section-label">Quote & customer reply</div>
+        <div class="field-row">
+          <div class="field">
+            <label>Cubic meters (CBM)</label>
+            <input type="number" step="0.1" id="d_cbm" value="${j.cbm ?? ''}" placeholder="e.g. 22">
+          </div>
+          <div class="field">
+            <label>Price (EGP)</label>
+            <input type="number" id="d_price" value="${j.price ?? ''}" placeholder="e.g. 8500">
+          </div>
+        </div>
+        <div class="field">
+          <label>Customer's reply</label>
+          <textarea id="d_response" placeholder="e.g. Agreed on price, wants to move on the 14th">${esc(j.customerResponse||'')}</textarea>
+        </div>
+        <button class="btn btn-outline btn-block" onclick="saveQuote('${j.id}')">Save quote</button>
+
+        <div class="divider"></div>
+
+        ${j.status==='ops' ?
+          `<div class="detail-block"><div class="dl-label">STATUS</div><div class="dl-value">Sent to operations — ready for job assignment.</div></div>
+          <button class="btn btn-dark btn-block" onclick="sharePackingListLink('${j.id}')">Get packing list upload link</button>
+          <div class="sheet-sub" style="margin-top:6px;">Share this with your supervisor so they can upload the client's packing list straight to this file.</div>
+          <div id="packingListBox" style="margin-top:12px;"><div class="sheet-sub">Loading packing list…</div></div>`
+          :
+          `<button class="btn btn-primary btn-block" onclick="sendToOperations('${j.id}')" ${(!j.cbm || !j.price) ? 'disabled' : ''}>
+            Confirm & send to operations
+          </button>
+          ${(!j.cbm || !j.price) ? '<div class="sheet-sub" style="margin-top:8px;">Add cubic meters and price above before sending.</div>' : ''}`
+        }
+      </div>
+    </div>
+  `;
+  openOverlay(html);
+  if(j.pricingMode==='photos') attachPhotosListener(j.id);
+  if(j.status==='ops') attachPackingListListener(j.id);
+}
+
+let currentPhotosUnsub = null;
+function attachPhotosListener(id){
+  if(currentPhotosUnsub) currentPhotosUnsub();
+  const photosQuery = query(collection(db, "jobs", id, "photos"), orderBy("uploadedAt", "asc"));
+  currentPhotosUnsub = onSnapshot(photosQuery, (snapshot)=>{
+    const box = document.getElementById('photosBox');
+    if(!box) return; // sheet already closed
+    if(snapshot.empty){
+      box.innerHTML = '<div class="sheet-sub">No photos received yet.</div>';
+      return;
+    }
+    const photos = snapshot.docs.map(d=>d.data());
+    box.innerHTML = `
+      <div class="section-label">Photos received (${photos.length})</div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+        ${photos.map(p=>`<a href="${p.data}" target="_blank"><img src="${p.data}" style="width:72px;height:72px;object-fit:cover;border-radius:4px;border:1px solid var(--line);"></a>`).join('')}
+      </div>
+    `;
+  });
+}
+
+let currentPackingListUnsub = null;
+function attachPackingListListener(id){
+  if(currentPackingListUnsub) currentPackingListUnsub();
+  const listQuery = query(collection(db, "jobs", id, "packingList"), orderBy("uploadedAt", "asc"));
+  currentPackingListUnsub = onSnapshot(listQuery, (snapshot)=>{
+    const box = document.getElementById('packingListBox');
+    if(!box) return; // sheet already closed
+    if(snapshot.empty){
+      box.innerHTML = '<div class="sheet-sub">No packing list received yet.</div>';
+      return;
+    }
+    const items = snapshot.docs.map(d=>d.data());
+    box.innerHTML = `
+      <div class="section-label">Packing list (${items.length})</div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+        ${items.map(p=>`<a href="${p.data}" target="_blank"><img src="${p.data}" style="width:72px;height:72px;object-fit:cover;border-radius:4px;border:1px solid var(--line);"></a>`).join('')}
+      </div>
+    `;
+  });
+}
+
+async function sharePackingListLink(id){
+  const link = `${PACKINGLIST_BASE_URL}?job=${id}`;
+  const shareText = `Packing list upload link for this job: ${link}`;
+  if(navigator.share){
+    try{ await navigator.share({ title: 'Packing list upload link', text: shareText }); }
+    catch(e){ /* user cancelled share sheet, no action needed */ }
+  } else {
+    try{
+      await navigator.clipboard.writeText(link);
+      alert('Link copied — paste it to your supervisor.');
+    }catch(e){
+      prompt('Copy this link to share with your supervisor:', link);
+    }
+  }
+}
+
+async function setPricingModeDetail(id, mode){
+  await saveJobFields(id, { pricingMode: mode });
+  openDetail(id);
+}
+
+function sendPhotoLink(id){
+  const j = jobs.find(x=>x.id===id);
+  if(!j) return;
+  if(!j.phone){ alert('Add a phone number to this file first.'); return; }
+  const link = `${UPLOAD_BASE_URL}?job=${j.id}`;
+  const msg = `Hi ${j.name}, this is United Sons Moving Services. Please use this link to send us photos of the items you're moving so we can prepare your quote: ${link}`;
+  const phone = normalizeEgyptPhone(j.phone);
+  const waUrl = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+  window.open(waUrl, '_blank');
+}
+
+async function saveSurveySchedule(id){
+  const j = jobs.find(x=>x.id===id);
+  const d = document.getElementById('d_surveyDate').value;
+  const t = document.getElementById('d_surveyTime').value;
+  if(!d){ alert('Pick a survey date first.'); return; }
+  const fields = { surveyDate: d, surveyTime: t };
+  if(j.status==='lead') fields.status = 'survey_set';
+  await saveJobFields(id, fields);
+  openDetail(id);
+}
+
+async function saveQuote(id){
+  const j = jobs.find(x=>x.id===id);
+  const cbm = document.getElementById('d_cbm').value;
+  const price = document.getElementById('d_price').value;
+  const response = document.getElementById('d_response').value;
+  const fields = {
+    cbm: cbm ? Number(cbm) : null,
+    price: price ? Number(price) : null,
+    customerResponse: response
+  };
+  if(j.status!=='ops' && j.status!=='confirmed') fields.status = 'quoted';
+  await saveJobFields(id, fields);
+  openDetail(id);
+}
+
+async function sendToOperations(id){
+  const j = jobs.find(x=>x.id===id);
+  if(!j.cbm || !j.price){ alert('Add cubic meters and price first.'); return; }
+  await saveJobFields(id, { status: 'ops', sentToOpsAt: Date.now() });
+  closeOverlay();
+  switchTab('ops');
+}
+
+function closeOverlay(){
+  if(overlayOpen){
+    overlayOpen = false;
+    history.back();
+  } else {
+    removeOverlayDom();
+  }
+}
+function closeOverlayOutside(e){
+  if(e.target.id==='overlay') closeOverlay();
+}
+
+async function deleteJob(id){
+  if(!confirm('Delete this customer file? This cannot be undone.')) return;
+  await deleteDoc(doc(db, "jobs", id));
+  closeOverlay();
+}
+
+/* ---------- Expose functions used by inline onclick handlers ---------- */
+window.switchTab = switchTab;
+window.openNewLead = openNewLead;
+window.selectPricingMode = selectPricingMode;
+window.saveNewLead = saveNewLead;
+window.openDetail = openDetail;
+window.setPricingModeDetail = setPricingModeDetail;
+window.deleteJob = deleteJob;
+window.sendPhotoLink = sendPhotoLink;
+window.sharePackingListLink = sharePackingListLink;
+window.saveSurveySchedule = saveSurveySchedule;
+window.saveQuote = saveQuote;
+window.sendToOperations = sendToOperations;
+window.closeOverlay = closeOverlay;
+window.closeOverlayOutside = closeOverlayOutside;
+
+/* ---------- Init ---------- */
+render();
+</script>
+</body>
+</html>
